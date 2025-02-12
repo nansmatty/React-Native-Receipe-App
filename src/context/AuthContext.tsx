@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import {createContext, ReactNode, useState} from 'react';
+import {createContext, ReactNode, useEffect, useState} from 'react';
 
 const API_URL = 'http://10.0.2.2:4000';
 
@@ -11,6 +11,8 @@ interface AuthContextData {
   signUp: (name: string, email: string, password: string) => Promise<boolean>;
   signIn: (email: string, password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
+  isAuthenticated: boolean;
+  checkAuth: () => Promise<boolean>;
 }
 
 export const AuthContext = createContext<AuthContextData>(
@@ -21,6 +23,32 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({children}) => {
   const [token, setToken] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const checkAuth = async (): Promise<boolean> => {
+    try {
+      const getStoredToken = await AsyncStorage.getItem('token');
+      const getStoredUserId = await AsyncStorage.getItem('userId');
+
+      if (getStoredToken && getStoredUserId) {
+        setToken(getStoredToken);
+        setUserId(getStoredUserId);
+        setIsAuthenticated(true);
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.error('Error Details', error);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   const signUp = async (
     name: string,
@@ -58,7 +86,7 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({children}) => {
         setToken(user.access_token);
         await AsyncStorage.setItem('userId', user._id);
         setUserId(user._id);
-        // setIsLoading(false);
+        setIsAuthenticated(true);
 
         return true;
       } else return false;
@@ -76,6 +104,7 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({children}) => {
       setToken(null);
       await AsyncStorage.removeItem('userId');
       setUserId(null);
+      setIsAuthenticated(false);
     } catch (error) {
       console.error('Error Details', error);
     }
@@ -83,7 +112,16 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({children}) => {
 
   return (
     <AuthContext.Provider
-      value={{token, userId, isLoading, signUp, signIn, signOut}}>
+      value={{
+        token,
+        userId,
+        isLoading,
+        signUp,
+        signIn,
+        signOut,
+        isAuthenticated,
+        checkAuth,
+      }}>
       {children}
     </AuthContext.Provider>
   );
