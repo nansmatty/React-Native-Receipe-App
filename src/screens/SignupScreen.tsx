@@ -27,10 +27,17 @@ const SignupScreen: React.FC<SignupScreenProps> = ({navigation}) => {
 
   const {signUp} = useContext(AuthContext);
 
+  const resetState = () => {
+    setName('');
+    setEmail('');
+    setPassword('');
+  };
+
   const handleSignup = async () => {
     if (name && email && password) {
       const success = await signUp(name, email, password);
       if (success) {
+        resetState();
         Alert.alert('Success', 'Account created successfully, Please login.');
         navigation.navigate('Login');
       } else {

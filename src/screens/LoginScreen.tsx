@@ -1,13 +1,15 @@
 import {
+  Alert,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
+import React, {useContext, useState} from 'react';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootNavigationProps} from '../navigation/RootNavigation';
+import {AuthContext} from '../context/AuthContext';
 
 type LoginScreenNavigationProps = NativeStackNavigationProp<
   RootNavigationProps,
@@ -19,6 +21,30 @@ interface LoginScreenProps {
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const {signIn} = useContext(AuthContext);
+
+  const resetState = () => {
+    setEmail('');
+    setPassword('');
+  };
+
+  const handleLogin = async () => {
+    if (email && password) {
+      const success = await signIn(email, password);
+      if (success) {
+        resetState();
+        navigation.navigate('Home');
+      } else {
+        Alert.alert('Sign In Failed', 'Invalid Credentials.');
+      }
+    } else {
+      Alert.alert('Invalid input', 'Signup failed. Please fill all the fields');
+    }
+  };
+
   return (
     <View style={styles.sectionContainer}>
       <Text style={[styles.sectionTitle, {marginBottom: 20}]}>Login</Text>
@@ -27,13 +53,17 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
         style={styles.inputBox}
         keyboardType="email-address"
         autoCapitalize="none"
+        value={email}
+        onChangeText={setEmail}
       />
       <TextInput
         placeholder="Password"
         style={styles.inputBox}
+        value={password}
+        onChangeText={setPassword}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.signUpBtn}>
+      <TouchableOpacity style={styles.signUpBtn} onPress={handleLogin}>
         <Text style={[styles.sectionTitle, {color: '#fff', fontSize: 14}]}>
           Login Now
         </Text>

@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import {createContext, ReactNode, useState} from 'react';
 
@@ -50,8 +51,17 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({children}) => {
         password,
       });
 
-      if (response.status === 201) return true;
-      else return false;
+      const {success, user} = response.data;
+
+      if (success) {
+        await AsyncStorage.setItem('token', user.access_token);
+        setToken(user.access_token);
+        await AsyncStorage.setItem('userId', user._id);
+        setUserId(user._id);
+        // setIsLoading(false);
+
+        return true;
+      } else return false;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('Error Details', error.response?.data);
@@ -60,7 +70,16 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({children}) => {
     }
   };
 
-  const signOut = async (): Promise<void> => {};
+  const signOut = async (): Promise<void> => {
+    try {
+      await AsyncStorage.removeItem('token');
+      setToken(null);
+      await AsyncStorage.removeItem('userId');
+      setUserId(null);
+    } catch (error) {
+      console.error('Error Details', error);
+    }
+  };
 
   return (
     <AuthContext.Provider
