@@ -31,7 +31,7 @@ const RootNavigation: React.FC = () => {
       <Stack.Screen
         name="Home"
         component={HomeScreen}
-        options={{headerShown: false}}
+        // options={{headerShown: false}}
       />
       <Stack.Screen name="Receipe Details" component={ReceipeDetailsScreen} />
     </Stack.Navigator>

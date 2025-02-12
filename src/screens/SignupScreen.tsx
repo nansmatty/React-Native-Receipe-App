@@ -1,13 +1,15 @@
 import {
+  Alert,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
+import React, {useContext, useState} from 'react';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootNavigationProps} from '../navigation/RootNavigation';
+import {AuthContext} from '../context/AuthContext';
 
 type SignupScreenNavigationProps = NativeStackNavigationProp<
   RootNavigationProps,
@@ -19,6 +21,26 @@ interface SignupScreenProps {
 }
 
 const SignupScreen: React.FC<SignupScreenProps> = ({navigation}) => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const {signUp} = useContext(AuthContext);
+
+  const handleSignup = async () => {
+    if (name && email && password) {
+      const success = await signUp(name, email, password);
+      if (success) {
+        Alert.alert('Success', 'Account created successfully, Please login.');
+        navigation.navigate('Login');
+      } else {
+        Alert.alert('Sign Up Failed', 'Please try with different email.');
+      }
+    } else {
+      Alert.alert('Invalid input', 'Signup failed. Please fill all the fields');
+    }
+  };
+
   return (
     <View style={styles.sectionContainer}>
       <Text style={[styles.sectionTitle, {marginBottom: 20}]}>Sign Up</Text>
@@ -26,19 +48,25 @@ const SignupScreen: React.FC<SignupScreenProps> = ({navigation}) => {
         placeholder="Name"
         style={styles.inputBox}
         autoCapitalize="words"
+        value={name}
+        onChangeText={setName}
       />
       <TextInput
         placeholder="Email"
         style={styles.inputBox}
         keyboardType="email-address"
         autoCapitalize="none"
+        value={email}
+        onChangeText={setEmail}
       />
       <TextInput
         placeholder="Password"
         style={styles.inputBox}
+        value={password}
+        onChangeText={setPassword}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.signUpBtn}>
+      <TouchableOpacity style={styles.signUpBtn} onPress={handleSignup}>
         <Text style={[styles.sectionTitle, {color: '#fff', fontSize: 14}]}>
           Sign Up
         </Text>

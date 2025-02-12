@@ -1,11 +1,14 @@
 import {NavigationContainer} from '@react-navigation/native';
 import RootNavigation from './src/navigation/RootNavigation';
+import {AuthProvider} from './src/context/AuthContext';
 
 function App(): React.JSX.Element {
   return (
-    <NavigationContainer>
-      <RootNavigation />
-    </NavigationContainer>
+    <AuthProvider>
+      <NavigationContainer>
+        <RootNavigation />
+      </NavigationContainer>
+    </AuthProvider>
   );
 }
 
