@@ -23,11 +23,7 @@ const Stack = createNativeStackNavigator<RootNavigationProps>();
 
 const RootNavigation: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
-  const {isAuthenticated, checkAuth, isLoading} = useContext(AuthContext);
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  const {isAuthenticated, isLoading} = useContext(AuthContext);
 
   useEffect(() => {
     if (!isLoading) {

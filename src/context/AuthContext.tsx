@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import {createContext, ReactNode, useEffect, useState} from 'react';
+import {ActivityIndicator} from 'react-native';
 
 const API_URL = 'http://10.0.2.2:4000';
 
@@ -100,6 +101,7 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({children}) => {
 
   const signOut = async (): Promise<void> => {
     try {
+      await axios.post(`${API_URL}/api/v1/auth/logout`);
       await AsyncStorage.removeItem('token');
       setToken(null);
       await AsyncStorage.removeItem('userId');
@@ -109,6 +111,8 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({children}) => {
       console.error('Error Details', error);
     }
   };
+
+  if (isLoading) return <ActivityIndicator size={'small'} color={'#111827'} />;
 
   return (
     <AuthContext.Provider
