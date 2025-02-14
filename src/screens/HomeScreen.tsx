@@ -60,6 +60,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
     setShowModal(false);
   };
 
+  const filterReceipes = receipes.filter(receipeItem =>
+    receipeItem.title.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
   return (
     <View style={styles.sectionContainer}>
       <View style={styles.header}>
@@ -82,7 +86,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
       {/* Modal for creating new receipe */}
 
       <FlatList
-        data={receipes}
+        data={filterReceipes}
         keyExtractor={item => item._id}
         renderItem={({item}) => (
           <ReceipeItem
