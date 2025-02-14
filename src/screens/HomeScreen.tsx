@@ -1,20 +1,20 @@
 import {
   Alert,
-  Button,
+  FlatList,
   Modal,
   StyleSheet,
   Text,
   TextInput,
-  Touchable,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {AuthContext} from '../context/AuthContext';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootNavigationProps} from '../navigation/RootNavigation';
 import CreateReceipeForm from '../components/CreateReceipeForm';
 import {Receipe, ReceipeContext} from '../context/ReceipeContext';
+import ReceipeItem from '../components/ReceipeItem';
 
 type HomeScreenNavigationProps = NativeStackNavigationProp<
   RootNavigationProps,
@@ -29,8 +29,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const {signOut} = useContext(AuthContext);
-  const {createReceipe} = useContext(ReceipeContext);
+  const {signOut, userId} = useContext(AuthContext);
+  const {createReceipe, getReceipes, deleteReceipe, receipes} =
+    useContext(ReceipeContext);
+
+  useEffect(() => {
+    getReceipes();
+  }, []);
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -75,6 +80,21 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
       </View>
 
       {/* Modal for creating new receipe */}
+
+      <FlatList
+        data={receipes}
+        keyExtractor={item => item._id}
+        renderItem={({item}) => (
+          <ReceipeItem
+            receipe={item}
+            currentUser={userId}
+            onPressDeleteReceipe={() => deleteReceipe(item._id)}
+            onPressReceipeItem={() =>
+              navigation.navigate('Receipe Details', {receipeId: item._id})
+            }
+          />
+        )}
+      />
 
       <Modal
         visible={showModal}
